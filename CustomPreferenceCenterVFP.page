@@ -1,0 +1,318 @@
+<apex:page controller="ManageMySubscriptions" showHeader="false" docType="html-5.0" standardStylesheets="false">
+    
+    <html lang="en">
+    
+        
+    
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta name="description" content="Update your email communication preferences for Pepperdine University communications." />
+            <meta name="robots" content="NOINDEX, NOFOLLOW" />
+            <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+            <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+            <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+            <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
+            <link rel="stylesheet" type="text/css" href="https://www.pepperdine.edu/_resources/css/master.css" media="all" />
+            <title>Manage Communication Preferences | Pepperdine University</title>
+            <style>
+                header{height:65px;border-bottom:5px solid #c25700;}
+                article{margin-top:40px;}
+                h2{padding-top:20px;}
+                .userinfo{padding:20px 20px calc(20px - 1.2rem) 20px;color:#fff !important;background-color:#003988;}
+                .username{margin-bottom:.4em;}
+                .useremail{line-height:1em;word-wrap:break-word;}
+                .maincontent{width:75%;}
+                @media only screen and (max-width: 600px){
+                .maincontent{width:100%;}
+                }
+                .panel-title{
+                font-size: 17px;
+                }
+                label.h5{
+                color:#00205c;
+                font-weight: 700;
+                }
+                p a{
+                text-decoration: underline;
+                }
+                .custombtn {
+                margin-top: 15px !important;
+                padding: 10px 25px !important;
+                color: #003988 !important;
+                font-size: 1.8rem;
+                font-weight: 400 !important;
+                background-color: #fff !important;
+                outline: 1px solid #bb0000 !important;
+                outline-offset: -1px !important;
+                }
+                input.custombtn[value="Update"],input.custombtn[value="Unsubscribe"]{
+                color: #fff !important;
+                background-color: #9e0000 !important;
+                outline-color: #b00000 !important;
+                }
+                input.custombtn[value="Update"]:hover,input.custombtn[value="Update"]:focus,input.custombtn[value="Unsubscribe"]:hover,input.custombtn[value="Unsubscribe"]:focus{
+                background-color: #003988 !important;
+                }
+                .custombtn:hover, .custombtn:focus{
+                background-color: #eceff0 !important;
+                }
+                .overrideFocus:focus {
+                box-shadow: none !important;
+                border: 1px solid #66afe9 !important;
+                }
+                .panel-heading {
+                background-color: #f8f8f8;
+                color: #00205c;
+                }  
+                .panel-heading.on {
+                background-color: #dadfe1;
+                }
+                select.minimal {
+                background-image:
+                linear-gradient(45deg, transparent 50%, gray 50%),
+                linear-gradient(135deg, gray 50%, transparent 50%),
+                linear-gradient(to right, #ccc, #ccc);
+                background-position:
+                calc(100% - 20px) calc(1em + 2px),
+                calc(100% - 15px) calc(1em + 2px),
+                calc(100% - 2.5em) 0.5em;
+                background-size:
+                5px 5px,
+                5px 5px,
+                1px 1.5em;
+                background-repeat: no-repeat;
+                }
+                .panelArrow h3:before {
+                font-family: 'Glyphicons Halflings';
+                content: "\e114";
+                float: right;
+                transition: all 0.5s;
+                }
+                .panelArrow.active h3:before {
+                -webkit-transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                transform: rotate(180deg);
+                }
+                .subscribe-all{
+                color:#003988;
+                font-weight:700;
+                text-dcoration:underline;
+                }
+                .subscribe-all:focus, .subscribe-all:hover{
+                cursor:pointer;
+                color:#0078b0;
+                }
+            </style>
+            <script>
+            $j = jQuery.noConflict();
+            $ = $j;
+            function showOrHide(divId, currentValue) {
+                //alert(divId + ', ' + currentValue);
+                if (currentValue == 'Other') {
+                    $j('#'+divId).show();
+                } else {
+                    $j('#'+divId).hide();
+                }
+            }            
+            function displayThinkingMessage(btn) {
+                btn.attr('value', 'Processing...');
+                btn.attr("disabled", "disabled");
+            }
+            $( function() {
+                $('.panel-heading').click( function() {
+                    $(this).toggleClass('on');
+                } )
+            });
+            $( function() {
+                $('.panelArrow').click( function() {
+                    $(this).toggleClass('active');
+                } )
+            });
+            function showOrHideReason(divId, currentValue) {
+                if (currentValue == 'false' || currentValue == false) {
+                    $j('#'+divId).show();
+                } 
+                else {
+                    $j('#'+divId).hide();
+                }
+            }
+            function showOrHideReasonListOnLoad() {
+                var jsMap = '{!showHideReasonString}';
+                var finalMap = JSON.parse(jsMap);
+                Object.keys(finalMap).forEach(function(key) {
+                    var divId = 'reason' + key;
+                    showOrHideReason(divId, finalMap[key]);
+                    console.log(key, finalMap[key]);
+                });
+            }
+            function showOrHideReasonOnLoad(){
+                var optOut = '{!optOut}';
+                showOrHideReason('unsubreason', optOut);
+                showOrHideReasonListOnLoad();
+            }
+            function showOrHideReasonList(groupId, currentValue) {
+                callReasonMap(groupId);
+            }
+            </script>
+        </head>
+        
+       
+        
+        
+        <body id="top" class="landing" onload="showOrHideReasonOnLoad();" >
+            
+            <header>
+                <div class="wordmark">Pepperdine</div>
+            </header>
+            
+            <main class="contained maincontent" id="main-content">
+                <article>
+                    <h1>Pepperdine Subscription Center</h1>
+                    <div class="section-row">
+                        <div class="twothirds right">
+                            <p>Welcome to the Pepperdine subscription center. On this page you can update your communication preferences. Note that if you unsubscribe from all you will be removed from all Pepperdine recruitment communications.</p>
+                        </div>
+                        <apex:outputPanel styleClass="third userinfo" id="emailOptOut" rendered="{!hasContactOrLeadId}">
+                            <p class="username large"><strong>{!pageCon.FirstName} {!pageCon.LastName}</strong></p>
+                            <p class="useremail">{!pageCon.Email}</p>
+                            <apex:outputText rendered="{!hasEmailOptOut}">
+                                <p><em>You are currently unsubscribed from all communications.</em></p>
+                            </apex:outputText>
+                        </apex:outputPanel>
+                    </div>
+                    
+                    <apex:form id="frm" >
+                        <apex:actionFunction action="{!doGetReasonMap}" name="callReasonMap" reRender="" oncomplete="showOrHideReason('{!grpName}', '{!flagList}');" >
+                            <apex:param id="gName" name="groupName" value="" />
+                        </apex:actionFunction>
+                        
+                        <apex:outputPanel rendered="{!displayConfirmation}">
+                            <div class="panel panel-default panel-body" >
+                                <div class="form-group row" style="padding-top:1em;">
+                                    <label class="control-label col-sm-5">{!messageToDisplay}</label>
+                                </div>
+                                <div class="flex-1" style="max-width:120px;">
+                                    <apex:commandButton action="{!redirectPageOnReturn}" value="Return" styleClass="custombtn"  style="padding: 10px 25px !important;" /> 
+                                </div>
+                            </div>
+                        </apex:outputPanel><br/>
+                        
+                        <apex:outputPanel rendered="{!!displayConfirmation && hasContactOrLeadId}">
+                            <!-- SHOW CURRENT SUBSCRIPTION AT THE TOP WHEN SID IS PASSED -->
+                            <apex:outputPanel rendered="{!hasSubsId && !hasEmailOptOut}">
+                                <h2>Quick Opt-Out</h2>
+                                <div class="panel panel-default panel-body">
+                                    <p><em>Press "Update" button to apply changes. Checked is subscribed, un-checked is unsubscribed.</em></p>
+                                    <label class="h5">
+                                        <apex:inputCheckbox label="optOut" value="{!optOut}" onchange="showOrHideReason('unsubreason', this.checked);"/>&nbsp;&nbsp;{!subscrs[subscriptionId].public_subscription_Label__c} Subscription
+                                    </label>
+                                    <apex:outputText escape="false" value="{!subscrs[subscriptionId].Description__c}"/>
+                                    
+                                    <div style="max-width:300px !important;">
+                                        <div id="unsubreason">
+                                            <label class="control-label" ><strong style="color:#00205c;">Why do you wish to unsubscribe?</strong>
+                                                <div style="margin-top:10px !important; width:250px !important;">
+                                                    <apex:selectList value="{!singleUnsubscribeReason}" styleClass="form-control overrideFocus minimal" size="1" onchange="showOrHide('singleSubComments', this.value);" style="border-radius: 0px !important;">
+                                                        <apex:selectOptions value="{!unsubReasons}"/>
+                                                    </apex:selectList>
+                                                </div>
+                                            </label>
+                                            <div id="singleSubComments" style="display:none;">
+                                                <label class="control-label" ><strong style="color:#00205c;">Reason for Unsubscribing</strong>
+                                                    <div style="margin-top:10px !important; width:250px !important;">
+                                                        <apex:inputText value="{!unsubscribeComments}" styleClass="form-control overrideFocus" html-placeholder="" style="border-radius:0px !important;"/>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1" style="float:left; margin-right:10px;">
+                                            <apex:commandButton action="{!updateSubscription}" value="Update" onclick="displayThinkingMessage($(this))" rerender="msgs, allsubs, frm" styleClass="custombtn" style="padding:10px 25px !important;" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </apex:outputPanel><br/>
+                            
+                            <!-- SHOW ALL SUBSCRIPTIONS -->
+                            <apex:outputPanel rendered="{!hasContactOrLeadId && !hasEmailOptOut}">
+                                
+                                <h2>Manage Subscriptions</h2>
+                                <apex:repeat value="{!subscrsByGroup}" var="g">
+                                    <div class="panel panel-default ">
+                                        <a class="panelArrow" data-toggle="collapse" data-parent="#accordion" href="#{!g}">
+                                            <h3 class="panel-title panel-heading ">
+                                                {!groupNames[g]} Communications
+                                            </h3>
+                                        </a>
+                                        <div id="{!g}" class="panel-collapse collapse"> 
+                                            <div class="panel-body" style="padding:1em 3em;">
+                                                <apex:outputPanel id="allsubs">
+                                                    <p><em>Press "Update" button to apply changes. Checked is subscribed, un-checked is unsubscribed.</em></p>
+                                                    <apex:repeat value="{!subscrsByGroup[g]}" var="s">
+                                                        <div class="form-group row" style="padding: 0em 1em;">
+                                                            <div class="control-label col-sm-12" style="margin-left:-25px !important;">
+                                                                <label class="h5">
+                                                                    <apex:inputCheckbox value="{!subscrWrpItems[s.Id].subscribed}" onchange="showOrHideReasonList('{!g}', this.checked);"/>&nbsp;&nbsp;{!subscrs[s.Id].Public_Subscription_Label__c}
+                                                                </label>
+                                                                <apex:outputText escape="false" value="{!subscrs[s.Id].Description__c}"/>
+                                                            </div>
+                                                        </div>
+                                                    </apex:repeat>
+                                                    <div style="max-width:250px !important;">
+                                                        <div id="reason{!g}">
+                                                            <label class="control-label"><strong style="color: #00205c;">Why do you wish to unsubscribe?</strong>
+                                                                <div style="margin-top:10px !important; ">
+                                                                    <apex:selectList value="{!unsubscribeReasons[g]}" styleClass="form-control overrideFocus minimal" size="1" onchange="showOrHide('subComments{!g}', this.value);" style="border-radius: 0px !important;">
+                                                                        <apex:selectOptions value="{!unsubReasons}" />
+                                                                    </apex:selectList>
+                                                                </div>
+                                                            </label>
+                                                            
+                                                            <div id="subComments{!g}" style="display:none; max-width:240px !important;">
+                                                                <label class="control-label" ><strong style="color:#00205c;">Reason for Unsubscribing</strong>
+                                                                    <div style="margin-top:10px !important; width:250px !important;">
+                                                                        <apex:inputText value="{!unsubComments[g]}" styleClass="form-control overrideFocus" html-placeholder="" style="border-radius: 0px !important;"/>
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-1" style="float:left; margin-right:10px;">
+                                                            <apex:commandButton action="{!updateSubscriptionList}" value="Update" onclick="displayThinkingMessage($(this))" styleClass="custombtn" style="padding: 10px 25px !important;" rerender="msgs, allsubs, frm" >
+                                                                <apex:param name="grpName" assignTo="{!selectedGroup}" value="{!g}"/>
+                                                            </apex:commandButton>
+                                                        </div>
+                                                    </div>
+                                                </apex:outputPanel>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </apex:repeat>
+                            </apex:outputPanel>
+                            
+                        </apex:outputPanel> 
+                        
+                        <div class="flex-1" style="max-width:350px;">
+                            <apex:actionFunction name="globalUnsub" action="{!globalUnsubscribe}" rerender="msgs, frm, emailOptOut"/>
+                            <apex:commandButton rendered="{!!hasEmailOptOut}" onclick="if(confirm('If you decide to global unsubscribe, then you will no longer receive any emails from Pepperdine University. Are you sure?')){globalUnsub();} return false;" styleClass="custombtn" value="Unsubscribe from All" />
+                            <apex:commandLink styleClass="subscribe-all" rendered="{!hasEmailOptOut}" action="{!globalSubscribe}" reRender="msgs, frm, emailOptOut">SUBSCRIBE TO ALL</apex:commandLink>
+                        </div>
+                        
+                    </apex:form>
+                </article>
+            </main>
+            
+            <footer>
+                <div class="copyright">
+                    <div class="fullframe contained">
+                        <div class="heading" style="margin-bottom:5px">Pepperdine University</div>
+                        <address style="margin-bottom:0">24255 Pacific Coast Highway, Malibu, CA 90263</address>
+                        <p style="margin-bottom:5px">Copyright &copy; {!YEAR(TODAY())} <a class="noicon" href="https://www.pepperdine.edu/">Pepperdine&#160;University</a> | <a class="noicon" href="https://www.pepperdine.edu/legal/gdpr-privacy-notice/">GDPR Privacy Notice</a></p>
+                    </div>
+                </div>
+            </footer>
+        </body>
+        
+    </html>
+    
+
+</apex:page>
